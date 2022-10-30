@@ -80,9 +80,6 @@ print(csi)
 poincare = get_poincare_plot_features(rr_ectopic)
 print(poincare)
 
-dfa = DFA(rr_ectopic)
-print(dfa)
-
 samp = get_sampen(rr_ectopic)
 print(samp)
 
