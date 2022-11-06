@@ -1,11 +1,13 @@
 import json
 import nolds
-from numpy import extract
+from numpy import extract, int64
 import numpy as np
 import matplotlib.pyplot as plt
 from preprocessing import remove_outliers,remove_ectopic_beats,is_outlier,_remove_outlier_karlsson,_remove_outlier_acar,interpolate_nan_values,get_nn_intervals,is_valid_sample
 from extract_features import get_time_domain_features, get_geometrical_features, get_frequency_domain_features, _get_freq_psd_from_nn_intervals, _create_time_info, _create_interpolation_time, _get_features_from_psd, get_csi_cvi_features, get_poincare_plot_features, DFA, get_sampen
-from plot import plot_timeseries, plot_distrib, plot_psd, plot_poincare
+# from plot import plot_timeseries, plot_distrib, plot_psd, plot_poincare
+from hrvanalysis import plot_timeseries, plot_distrib, plot_psd, plot_poincare
+
 
 json_file = open('Vishakh.json')
 main_file = json.load(json_file)
@@ -58,9 +60,15 @@ print(time_ect)
 time_freq = get_frequency_domain_features(rr_ectopic)
 print(time_freq)
 
-time_freq_psd = _get_freq_psd_from_nn_intervals(rr_ectopic)
+time_freq,psd = _get_freq_psd_from_nn_intervals(rr_ectopic)
+time_freq_psd = psd
 print(time_freq_psd)
 print(type(time_freq_psd))
+
+time_freq_psd = _get_freq_psd_from_nn_intervals(rr_ectopic)
+time_freq_arr = np.array(time_freq_psd)
+print(time_freq_psd)
+print(type(time_freq_arr))
 time_freq_psd_list = list(time_freq_psd)
 print(type(time_freq_psd_list))
 print(time_freq_psd_list)
@@ -71,26 +79,27 @@ print(time_info)
 inter_time = _create_interpolation_time(rr_ectopic)
 print(inter_time)
 
-feat = _get_features_from_psd(rr_ectopic,time_freq_psd_list)
-print(feat)
+rr_ectopic_arr = np.array(rr_ectopic)
+x = np.logical_and(~np.isnan(rr_ectopic_arr),rr_ectopic_arr>0.0)
+rr_ect_nan = rr_ectopic_arr[x]
 
-csi = get_csi_cvi_features(rr_ectopic)
+csi = get_csi_cvi_features(rr_ect_nan)
 print(csi)
 
-poincare = get_poincare_plot_features(rr_ectopic)
+poincare = get_poincare_plot_features(rr_ect_nan)
 print(poincare)
 
-samp = get_sampen(rr_ectopic)
+samp = get_sampen(rr_ect_nan)
 print(samp)
 
-timeseries = plot_timeseries(rr_ectopic)
+timeseries = plot_timeseries(rr_ect_nan)
 plt.show()
 
-distrib = plot_distrib(rr_ectopic)
+distrib = plot_distrib(rr_ect_nan.astype("int64"))
 plt.show()
 
-psd = plot_psd(rr_ectopic)
+psd = plot_psd(rr_ect_nan)
 plt.show()
 
-poincare = plot_poincare(rr_ectopic)
+poincare = plot_poincare(rr_ect_nan)
 plt.show()
